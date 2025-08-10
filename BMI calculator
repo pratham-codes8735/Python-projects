@@ -1,0 +1,99 @@
+import csv
+import os
+
+
+filename = 'bmi_records.csv'
+
+# Check if file exists
+if not os.path.exists(filename):
+    # File does not exist, so create and write header
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        # Writing header row
+        writer.writerow(['Name', 'Height(cm)', 'Weight(kg)', 'BMI', 'Category'])
+
+
+def calculate_bmi():
+
+    # Taking inputs of different people
+    name = input("Enter your name :-  ")
+
+    weight = float(input("Enter your weight :-  "))
+    height = float(input("Enter your height :-  "))
+
+    height_in_metre = height / 100
+
+    BMI = weight / (height_in_metre) ** 2
+
+
+
+    if BMI < 18.5:
+        category = "Underweight"
+        
+
+    elif 18.5 <= BMI < 25:
+        category = "Normal"
+
+    elif 25 <= BMI < 30:
+        category = "Overweight"
+
+    else:
+        category = "Obese"
+
+    print(f"Person is {category}")    
+
+
+    with open('bmi_records.csv', 'a', newline='') as file:
+
+         writer = csv.writer(file)
+         writer.writerow([name, height, weight, round(BMI, 2),category])
+
+
+def show_history():
+    if os.path.exists('bmi_records.csv'):
+        with open('bmi_records.csv', 'r') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+            if len(data) > 1:  # header + at least 1 entry
+                print("\n--- Previous BMI Records ---")
+                for row in data:
+                    print(row)
+            else:
+                print("No records found yet.")
+    else:
+        print("No records found yet.")
+
+
+'''
+    with open('bmi_records.csv', 'r') as file:
+        reader = csv.reader(file)   # Iterator
+        data = list(reader)         # Iterator → List
+
+    print("Data from CSV file:")
+    print(data)
+
+    print("\nNumber of rows:", len(data))
+
+    print("\nPrinting row by row:")
+    for row in data:
+        print(row)
+
+'''
+while True:
+    print("1. Calculate new BMI")
+    print("2. Show history")
+    print("3. Exit")
+
+    choice = input("Enter choice: ")
+
+    if choice == '1':
+        # Call BMI calculation function
+        calculate_bmi()
+
+    elif choice == '2':
+        # Call history display function
+        show_history()
+    elif choice == '3':
+        break
+    else:
+        print("Thanks for using BMI calculator ,stay healthy!!!!!.")
