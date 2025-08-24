@@ -1,0 +1,145 @@
+import time, random
+from datetime import datetime 
+import csv
+import os
+
+users_data=[]
+filename = 'patient_appointment_scheduler.csv'
+
+if not os.path.exists(filename):
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["ID", "Name", "Date", "Time"]) 
+
+if os.path.exists(filename):
+    with open(filename, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            users_data.append({
+                "id": row["ID"],
+                "name": row["Name"],
+                "date": row["Date"],
+                "time": row["Time"]
+            })
+
+file_exists = os.path.exists(filename)
+ 
+def unique_id():
+   timestamp= int (time.time())
+   rand_num = random.randint(1000,9999)
+   return f"APT{timestamp}{rand_num}"
+
+def validate_date(date_str):
+   try:
+      datetime.strptime(date_str,"%d/%m/%Y")
+      return True
+   except ValueError:
+      print("⚠️ Invalid date format! Please enter date in date-month-year format," \
+      " e.g. 21/02/2005")
+      return False
+   
+def validate_time(time_str):
+   try:
+      datetime.strptime(time_str,"%H:%M")
+      return True
+   except ValueError:
+      print(" Invalid time format! Please enter time in HH:MM (24-hour) format," \
+      " e.g. 14:30")
+      return False   
+      
+users_data=[]
+
+def new_func():
+    print("Invalid choice , please try again")
+
+while True:
+    print("1. Add new appointment")
+    print("2. Show history")
+    print("3. Exit")
+    print("4. Search appointment")
+
+    choice = input("Enter choice: ")
+
+    if choice == '1':
+     appointments = {}
+
+     name=input("Enter your name")
+     while True:
+      date = input("Enter the date (DD/MM/YYYY): ")
+      if validate_date(date):
+        break
+      else:
+        print(" Invalid date format! Please use DD/MM/YYYY.")
+
+     while True:
+      time = input("Enter preferred time (HH:MM, 24-hour): ")
+      if validate_time(time):
+        break
+      else:
+        print(" Invalid time format! Please use HH:MM (24-hour).")
+
+     appointments["id"] = unique_id
+     appointments["name"]=name
+     appointments["date"]=date
+     appointments["time"]=time
+
+
+     conflict= False
+     for record in users_data:
+        if record ["date"]==date and record["time"]==time:
+           conflict = True
+           break
+        
+     if conflict:
+        print(" This slot is already booked , please select another slot")
+
+     else:
+        users_data.append(appointments)
+        print("Your slot is successfully booked , stay healthy!!")
+        with open(filename, 'a', newline='') as file:
+          writer = csv.writer(file)
+          writer.writerow([appointments["id"], 
+                           appointments["name"],
+                           appointments["date"], 
+                           appointments["time"]])
+
+    elif choice == '2':
+         print("\n Appointment History:")
+         if not users_data:
+          print("No appointments found yet.")
+         else:
+          for record in users_data:
+            print(f"ID: {record['id']} | Name: {record['name']} | Date: {record['date']} | Time: {record['time']}")
+
+    elif choice == '3':
+       print("Thanks for using our application , stay healthy!!!!!.")
+    elif choice == '4':
+     
+       
+     print("\n Search Appointment")
+     print("1. By Name")
+     print("2. By Date")
+     print("3. By Time")
+     search_choice = input("Choose option: ")
+
+     query = input("Enter search value: ").strip().lower()
+     results = []
+
+     if search_choice == '1':  # by name
+        results = [r for r in users_data if r["name"].lower() == query]
+     elif search_choice == '2':  # by date
+        results = [r for r in users_data if r["date"].lower() == query]
+     elif search_choice == '3':  # by time
+        results = [r for r in users_data if r["time"].lower() == query]
+     else:
+        print("Invalid choice!")
+
+     if results:
+        print("\n Matching Appointments:")
+        for r in results:
+            print(f"ID: {r['id']} | Name: {r['name']} | Date: {r['date']} | Time: {r['time']}")
+     else:
+        print(" No matching appointments found.")
+              
+    else:
+       print("Invalid choice , please try again")
